@@ -23,7 +23,6 @@ void find_all(unsigned char* base, InIter1 buf_start, InIter1 buf_end, InIter2 p
 
 int main(void)
 {
-    // Get the list of process identifiers.
     std::string pattern = "hello";
     DWORD aProcesses[1024], cbNeeded, cProcesses;
     unsigned int i;
@@ -32,27 +31,18 @@ int main(void)
     {
         return 1;
     }
-
-
-    // Calculate how many process identifiers were returned.
-
     cProcesses = cbNeeded / sizeof(DWORD);//count processes...
-
-    // Print the name and process identifier for each process.
-
     for (i = 0; i < cProcesses; i++)
     {
         if (aProcesses[i] != 0)
         {
             TCHAR szProcessName[MAX_PATH] = TEXT("<unknown>");
 
-            // Get a handle to the process.
+
 
             HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION |
                 PROCESS_VM_READ,
                 FALSE, aProcesses[i]);
-
-            // Get the process name.
 
             if (NULL != hProcess)
             {
@@ -67,11 +57,9 @@ int main(void)
                 }
             }
 
-            // Print the process name and identifier.
+
 
             _tprintf(TEXT("%s  (PID: %u)\n"), szProcessName, aProcesses[i]);
-
-            // Release the handle to the process.
             LPCVOID AddrPointer = new LPCVOID;
             MEMORY_BASIC_INFORMATION BasicMemptr;
             unsigned char* p = NULL;
@@ -87,12 +75,10 @@ int main(void)
                     ReadProcessMemory(hProcess, p, &buffer[0], BasicMemptr.RegionSize, &bytes_read);
                     buffer.resize(bytes_read);
                     find_all(p, buffer.begin(), buffer.end(), pattern.begin(), pattern.end(), std::ostream_iterator<void*>(std::cout, "\n"));
-                    //<<---- some of this is stolen code, i wrote the process iteration code
                 }
             }
 
 
-            //size_t actualSize = VirtualQueryEx(hProcess, AddrPointer, &BasicMemptr, 10000);
 
             CloseHandle(hProcess);
         }
